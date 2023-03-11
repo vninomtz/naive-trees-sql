@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/vninomtz/naive-trees-sql/internal/repo"
+	"github.com/vninomtz/naive-trees-sql/internal/tree"
 )
 
 func main() {
@@ -17,6 +18,26 @@ func main() {
 	flag.Parse()
 
 	http.HandleFunc("/api/nodes", func(w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Access-Control-Allow-Origin", "*")
+		if r.Method == "GET" {
+			nodes, err := repo.NewSqliteRepo().GetNodes()
+
+      t := tree.NewLevelOrderTree(nodes)
+      if err != nil {
+        log.Println(err)
+        responseError(w, err.Error())
+        return
+      }
+      w.Header().Set("Content-Type", "application/json")
+      json.NewEncoder(w).Encode(t.Root)
+			return
+		}
+
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	})
+
+	http.HandleFunc("/api/nodes/flat", func(w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Access-Control-Allow-Origin", "*")
 		if r.Method == "GET" {
 			nodes, err := repo.NewSqliteRepo().GetNodes()
       if err != nil {

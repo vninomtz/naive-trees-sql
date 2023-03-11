@@ -2,50 +2,70 @@ package tree
 
 import (
 	"fmt"
-	"math"
 )
 
 type Node struct {
-	Key    int    `json:"key"`
-	Parent int    `json:"parent"`
-	Left   *Node  `json:"left"`
-	Right  *Node  `json:"right"`
-	Value  string `json:"value"`
+	Key      int     `json:"key"`
+	Parent   int     `json:"parent"`
+	Left     *Node   `json:"left"`
+	Right    *Node   `json:"right"`
+	Value    string  `json:"value"`
+	Children []*Node `json:"children"`
 }
 
 type Tree struct {
-	root *Node
+	Root *Node
 }
 
-func (t *Tree) Preorder() {
-	preOrder(t.root)
+func NewLevelOrderTree(nds []*Node) *Tree {
+	root := insertLevelOrder(nds, 0, nil)
+
+	return &Tree{
+		Root: root,
+	}
+}
+
+func (t *Tree) Height() int {
+	return height(t.Root)
+}
+
+func (t *Tree) PrintLevelOrder() {
+	h := height(t.Root)
+
+	for i := 1; i <= h; i++ {
+		printCurrentLevel(t.Root, i)
+		fmt.Println()
+	}
+}
+
+func printCurrentLevel(n *Node, level int) {
+	if n == nil {
+		return
+	}
+	if level == 1 {
+		fmt.Printf("(P=%d, V=%s)  ",n.Parent, n.Value)
+	} else if level > 1 {
+		printCurrentLevel(n.Left, level-1)
+		printCurrentLevel(n.Right, level-1)
+	}
+
+}
+func Inorder(r *Node) {
+	inOrder(r)
 }
 func height(n *Node) int {
 	if n == nil {
-		return -1
+		return 0
 	}
 
 	left := height(n.Left)
 	right := height(n.Right)
 
-	ans := math.Max(float64(left), float64(right))
-
-	return int(ans)
-}
-
-func insert(n *Node, key int) *Node {
-	if n == nil {
-		return &Node{
-			Key: key,
-		}
+	if left > right {
+		return (left + 1)
+	} else {
+		return (right + 1)
 	}
-	if key < n.Key {
-		n.Left = insert(n.Left, key)
-	} else if key > n.Key {
-		n.Right = insert(n.Right, key)
-	}
-	// Equal keys
-	return n
 }
 
 func preOrder(n *Node) {
@@ -64,7 +84,7 @@ func inOrder(n *Node) {
 		return
 	}
 	inOrder(n.Left)
-	fmt.Printf("n -> %s", n.Value)
+	fmt.Printf("%s ->", n.Value)
 	inOrder(n.Right)
 }
 
@@ -92,4 +112,29 @@ func isFullTree(n *Node) bool {
 	}
 
 	return false
+}
+
+func insertLevelOrder(nds []*Node, i int, parent *Node) *Node {
+	var root *Node
+	if i < len(nds) {
+		root = &Node{
+			Key:   nds[i].Key,
+			Value: nds[i].Value,
+      Children: []*Node{},
+		}
+    if parent != nil {
+      root.Parent = parent.Key
+      nds[i].Parent = parent.Key
+    }
+		root.Left = insertLevelOrder(nds, 2*i+1, root)
+		if root.Left != nil {
+			root.Children = append(root.Children, root.Left)
+		}
+		root.Right = insertLevelOrder(nds, 2*i+2, root)
+		if root.Right != nil {
+			root.Children = append(root.Children, root.Right)
+		}
+	}
+
+	return root
 }

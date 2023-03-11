@@ -14,7 +14,7 @@ type SqliteRepo struct {
 }
 
 type NodeRepository interface {
-	Save(parent *tree.Node, user *tree.Node) (int, error)
+	Save(node *tree.Node) (int, error)
 	SaveNode(parent int, value string) (int, error)
 	GetNodes() ([]*tree.Node, error)
 	Close()
@@ -59,11 +59,21 @@ func (r *SqliteRepo) Clean() {
 	}
 }
 
-func (r *SqliteRepo) Save(parent *tree.Node, user *tree.Node) (int, error) {
-	// TODO: implementar
-	fmt.Println(parent)
-	fmt.Println(user)
-	return 0, nil
+func (r *SqliteRepo) Save(node *tree.Node) (int, error) {
+	query := "INSERT INTO Nodes (node_id, parent_id, value) VALUES (?, ?, ?)"
+
+	res, err := r.db.Exec(query, node.Key, node.Parent, node.Value)
+	if err != nil {
+		log.Printf("%q: %s\n", err, query)
+		return 0, err
+	}
+
+	id, err := res.LastInsertId()
+	if err != nil {
+		log.Printf("%q:\n", err)
+		return 0, err
+	}
+	return int(id), nil
 }
 
 func (r *SqliteRepo) SaveNode(parent int, value string) (int, error) {

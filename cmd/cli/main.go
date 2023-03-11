@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/vninomtz/naive-trees-sql/internal/repo"
+	"github.com/vninomtz/naive-trees-sql/internal/tree"
 )
 
 func main() {
@@ -13,6 +14,8 @@ func main() {
 	list := flag.Bool("ls", false, "List nodes db")
 	name := flag.String("name", "", "Nombre nodo")
 	parent := flag.Int("parent", 0, "Nodo padre")
+	fill := flag.Bool("fill", false, "Llenar db con datos")
+	num := flag.Int("no", 0, "Generar nodos")
 
 	flag.Parse()
 
@@ -25,9 +28,8 @@ func main() {
 			fmt.Println(err)
 			return
 		}
-		for _, n := range nodes {
-			fmt.Printf("Node{Key:%d,Value: %s, Parent: %d}\n",n.Key, n.Value, n.Parent)
-		}
+		t := tree.NewLevelOrderTree(nodes)
+		t.PrintLevelOrder()
 		return
 	}
 
@@ -45,6 +47,24 @@ func main() {
 		fmt.Println("Limpiando db ...")
 		repo.Clean()
 		return
+	}
+
+	if *fill {
+		nodes := []*tree.Node{}
+
+		for i := 0; i < *num; i++ {
+			n := &tree.Node{
+				Key:   i + 1,
+				Value: fmt.Sprintf("N-%d", i+1),
+			}
+			nodes = append(nodes, n)
+		}
+    tree.NewLevelOrderTree(nodes)
+
+    for _, n := range nodes {
+      repo.Save(n)
+    }
+    return
 	}
 
 	flag.PrintDefaults()

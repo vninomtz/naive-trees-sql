@@ -10,6 +10,7 @@
     "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
+    "@headlessui/vue": "^1.7.12",
     "@ssthouse/vue3-tree-chart": "^0.2.6",
     "vue": "^3.2.47",
     "vue3-blocks-tree": "^0.6.1"

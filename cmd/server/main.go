@@ -16,11 +16,14 @@ func main() {
 	port := flag.String("port", "8000", "Port for http server")
 
 	flag.Parse()
+  
+	db := repo.NewSqliteRepo()
+  defer db.Close()
 
 	http.HandleFunc("/api/nodes", func(w http.ResponseWriter, r *http.Request) {
     w.Header().Set("Access-Control-Allow-Origin", "*")
 		if r.Method == "GET" {
-			nodes, err := repo.NewSqliteRepo().GetNodes()
+			nodes, err := db.GetNodes()
 
       t := tree.NewLevelOrderTree(nodes)
       if err != nil {
@@ -39,7 +42,7 @@ func main() {
 	http.HandleFunc("/api/nodes/flat", func(w http.ResponseWriter, r *http.Request) {
     w.Header().Set("Access-Control-Allow-Origin", "*")
 		if r.Method == "GET" {
-			nodes, err := repo.NewSqliteRepo().GetNodes()
+			nodes, err := db.GetNodes()
       if err != nil {
         log.Println(err)
         responseError(w, err.Error())

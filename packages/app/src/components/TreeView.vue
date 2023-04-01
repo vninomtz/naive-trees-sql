@@ -1,7 +1,8 @@
 <script setup>
 import VueTree from "@ssthouse/vue3-tree-chart";
 import "@ssthouse/vue3-tree-chart/dist/vue3-tree-chart.css";
-import { ref, onMounted } from "vue";
+import Dialog from "./Dialog.vue"
+import { ref, onMounted, computed } from "vue";
 
 const config = {
   nodeWidth: 120,
@@ -10,6 +11,9 @@ const config = {
 }
 
 const tree = ref(null)
+const dialog = ref(null)
+
+const nodeSelected = ref({})
 
 const props = defineProps({
   data: Object | Array,
@@ -26,13 +30,29 @@ onMounted(() => {
   const el = document.querySelector(".tree-container")
   el.addEventListener("mousewheel", (event) => {
     console.log(event)
-  })
+    const { deltaY } = event
 
+    if (deltaY === undefined) {
+      return
+    }
+
+    if (deltaY > 0 ) {
+      zoomIn()
+    } else {
+      zoomOut()
+    }
+  })
 })
 
+const onViewMore = (node) => {
+  console.log(dialog.value.setIsOpen)
+  nodeSelected.value = node
+  dialog.value.setIsOpen(true)
+}
 </script>
 <template>
   <div>
+    <Dialog ref="dialog" :obj="nodeSelected" />
     <div>
       <button @click="zoomIn"> + </button>
       <button @click="zoomOut"> - </button>
@@ -42,6 +62,7 @@ onMounted(() => {
         <div style="background-color: gray; border: 1px solid black; padding: 10px;">
           <p> Key: {{ node.key }} </p>
           <p> Value: {{ node.value }} </p>
+          <button @click.stop="onViewMore(node)"> View more</button>
         </div>
       </template>
     </vue-tree>

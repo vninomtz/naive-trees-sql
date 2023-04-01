@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import TreeView from "./components/TreeView.vue"
+import TreeView from './components/TreeView.vue'
+import TreeCanvas from './components/TreeCanvas.vue'
 import { onMounted, ref } from 'vue';
 
 const dataTree = ref({})
@@ -20,7 +21,7 @@ const fetchNodes = async () => {
 }
 
 onMounted(() => {
-  fetchNodes()
+  //fetchNodes()
 })
 
 </script>
@@ -31,8 +32,11 @@ onMounted(() => {
   </header>
   <main>
     <div>
-      <TreeView :data="dataTree">
-      </TreeView>
+      <TreeCanvas />
+    </div>
+    <div>
+      <!-- <TreeView :data="dataTree"> -->
+      <!-- </TreeView> -->
     </div>
   </main>
 </template>
